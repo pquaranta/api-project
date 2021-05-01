@@ -1,6 +1,9 @@
 const express = require('express');
 const app = express();
 
+// Use dotenv for app config
+require('dotenv').config();
+
 // Import the separated routes
 require('./routes/management')(app);
 require('./routes/events')(app);
