@@ -1,4 +1,7 @@
-// Management API for managing scanners and access rules
+// All APIs are defined here. Normally we would break these out to separate files, but since we are not interfacing with an actual DB and using in-memory data structures I figured it would be
+// best to keep this all localized.
+const events = require('../middleware/events');
+
 module.exports = function(app) {
     // Fake DB to store scanner information
     const scannerDb = new Map();
@@ -59,4 +62,9 @@ module.exports = function(app) {
     app.delete('/rule', (req, res) => {
         res.send('Rule deleted');
     });
-}
+
+    // Endpoint for submitting an event
+    app.post('/event', events.validateEvent, (req, res) => {
+        console.log(`Event submitted: ${JSON.stringify(req.body)}`);
+    });
+};
