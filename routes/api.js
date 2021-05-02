@@ -32,7 +32,6 @@ module.exports = function(app) {
         };
 
         scannerDb.set(scanner.id, scanner);
-        console.log(`Scanner ${JSON.stringify(scanner)} created`);
         res.json(scanner);
     });
 
@@ -54,7 +53,6 @@ module.exports = function(app) {
             msg = `Scanner ${req.params.id} has been deleted`;
             res.send(msg);
         }
-        console.log(msg);
     });
 
     // Endpoint for creating a new rule
@@ -77,8 +75,7 @@ module.exports = function(app) {
         rule.employees = new Set(rule.employees);
         rule.scanners = new Set(rule.scanners);
         ruleDb.set(id, rule);
-        console.log(msg);
-        res.json(msg);
+        res.send(msg);
     });
 
     // Endpoint for retrieving all existing rules
@@ -103,13 +100,15 @@ module.exports = function(app) {
             msg = `Rule ${req.params.id} has been deleted`;
             res.send(msg);
         }
-        console.log(msg);
     });
 
     // Endpoint for submitting an event
     app.post('/event', events.validateEvent, (req, res) => {
         console.log(`Event received: ${JSON.stringify(req.body)}`);
-        if (req.body.event == events.EVENT_TYPES.HEARTBEAT) {
+        // First check to make sure that the scanner exists
+        if (!scannerDb.has(req.body.id)) {
+            res.status(404).send('Scanner not found');
+        } else if (req.body.event == events.EVENT_TYPES.HEARTBEAT) {
             // Update the scanner in the db with the latest heartbeat
             const scannerObj = scannerDb.get(req.body.id);
             scannerObj.lastHeartbeatTimestamp = Date.now();
