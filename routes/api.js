@@ -3,6 +3,7 @@
 const { v4: uuidv4 } = require('uuid');
 const events = require('../middleware/events');
 const permissions = require('../middleware/permissions');
+const queue = require('../data/fake-queue');
 
 // Fake DBs for scanners and permission rules
 const scannerDb = new Map();
@@ -103,8 +104,21 @@ module.exports = function(app) {
     });
 
     // Endpoint for submitting an event
-    app.post('/event', events.validateEvent, (req, res) => {
+    app.post('/event', events.validateEvent, async (req, res) => {
         console.log(`Event received: ${JSON.stringify(req.body)}`);
+
+        // Immediately upon receiving the event, we should block until we 
+        // can write it to our message queuing system for processing. This will fail a fixed percentage of time based on the configuration value provided in the .env file
+        let written = false;
+        while (!written) {
+            try {
+                await queue.writeData(req.body);
+                written = true;
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+        
         // First check to make sure that the scanner exists
         if (!scannerDb.has(req.body.id)) {
             res.status(404).send('Scanner not found');
