@@ -31,9 +31,9 @@ const validateEvent = (req, res, next) => {
     let validEvent = v.validate(req.body, eventSchema).valid;
     // Next, make sure that it is a valid event type
     validEvent = validEvent && Object.values(EVENT_TYPES).includes(req.body.event);
-    // Lastly, if this event has the 'payload' property, make sure that it is not a heartbeat
+    // Lastly, do some validation based on whether this is an enter/exit event or a heartbeat
     if (req.body.hasOwnProperty('payload')) {
-        validEvent = validEvent && (req.body.event == EVENT_TYPES.ENTER || req.body.event == EVENT_TYPES.EXIT);
+        validEvent = validEvent && (req.body.event == EVENT_TYPES.ENTER || req.body.event == EVENT_TYPES.EXIT) && req.body.payload.employeeId > 0;
     } else {
         validEvent = validEvent && req.body.event == EVENT_TYPES.HEARTBEAT;
     }
