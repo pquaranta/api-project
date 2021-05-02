@@ -1,4 +1,6 @@
 // Function to simulate a call to our message queuing system
+const messageLatency = process.env.IO_LATENCY || 10;
+
 const writeData = async (jsonData) => {
     const failPercentage = process.env.MESSAGE_WRITE_FAIL_RATE_PCT || 10;
 
@@ -12,7 +14,7 @@ const writeData = async (jsonData) => {
             } else {
                 rej('Message failed to write to queue');
             }
-        }, 100);
+        }, messageLatency);
     });
 }
 
