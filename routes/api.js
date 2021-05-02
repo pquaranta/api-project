@@ -1,19 +1,31 @@
 // All APIs are defined here. Normally we would break these out to separate files, but since we are not interfacing with an actual DB and using in-memory data structures I figured it would be
 // best to keep this all localized.
+const { v4: uuidv4 } = require('uuid');
 const events = require('../middleware/events');
 
-module.exports = function(app) {
-    // Fake DB to store scanner information
-    const scannerDb = new Map();
-    // Auto increment used for generating unique IDs for the scanner
-    let scannerAutoInc = 0;
+// Fake DB to store scanner information
+const scannerDb = new Map();
 
+// Periodically check for scanners that do not have a heartbeat. If we were working with a database I would use a query that would return in order of most recent heartbeat.
+// In this case, since it should be a trivial number of scanners, just iterate through them all.
+setInterval(() => {
+    scannerDb.forEach((value) => {
+        const lastHeartbeat = value.hasOwnProperty('lastHeartbeatTimestamp') ? value.lastHeartbeatTimestamp : value.creationTimestamp;
+        console.log(`Last: ${lastHeartbeat}`);
+        if (Date.now() - lastHeartbeat >= process.env.HEARTBEAT_INTERVAL_MS) {
+            console.warn(`No heartbeat received from scanner ${value.id} in the past ${process.env.HEARTBEAT_INTERVAL_MS} ms`);
+        }
+    });
+}, process.env.PULSE_CHECK_INTERVAL_MS || 5000);
+
+module.exports = function(app) {
     // Endpoint for creating a new scanner
     app.post('/scanner', (req, res) => {
         // Generate the new scanner, add it to the DB, then return the json to the caller
+        const id = uuidv4();
         const scanner = {
-            apiKey: `scanner-${scannerAutoInc}-api-key`,
-            id: `${scannerAutoInc++}`,
+            apiKey: `scanner-${id}-api-key`,
+            id: id,
             creationTimestamp: Date.now()
         };
 
@@ -65,6 +77,14 @@ module.exports = function(app) {
 
     // Endpoint for submitting an event
     app.post('/event', events.validateEvent, (req, res) => {
-        console.log(`Event submitted: ${JSON.stringify(req.body)}`);
+        const msg = `Event submitted: ${JSON.stringify(req.body)}`;
+        if (req.body.event == events.EVENT_TYPES.HEARTBEAT) {
+            // Update the scanner in the db with the latest heartbeat
+            const scannerObj = scannerDb.get(req.body.id);
+            scannerObj.lastHeartbeatTimestamp = Date.now();
+            scannerDb.set(req.body.id, scannerObj);
+        }
+        console.log(msg);
+        res.send(msg)
     });
 };

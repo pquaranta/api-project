@@ -13,6 +13,7 @@ app.use(bp.urlencoded({ extended: true }))
 // Import the separated routes
 require('./routes/api')(app);
 
+
 // Start the app
 app.listen(port, () => {
     console.log(`Server started on port ${port}`);
