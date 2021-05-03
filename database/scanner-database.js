@@ -11,7 +11,6 @@ const createScanner = async function() {
         setTimeout(() => {
             // Generate the new scanner, add it to the DB
             const id = uuidv4();
-            // TODO: Have a better method of generating API keys
             const scanner = {
                 id: id,
                 creationTimestamp: Date.now()
