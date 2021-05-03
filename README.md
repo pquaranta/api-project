@@ -4,6 +4,7 @@
 - Make sure that you have the latest version of nodejs and npm installed. I have been using nodejs version `16.0.0` and npm version `7.11.2`.
 - Run `npm install` to install the npm packages.
 - Run `npm run start` or `node app.js` to run the application. By default it will run on port 8000, but this can be configured in the .env file.
+- Certain values can be modified in the `.env` to tune the behavior of the application.
 
 ## Usage
 This application has two primary APIs:
