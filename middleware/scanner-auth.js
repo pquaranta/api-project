@@ -10,7 +10,7 @@ const generateApiKey = function() {
 }
 
 const validateApiKey = function(req, res, next) {
-    if (keyMap.has(req.body.id) && keyMap.get(req.body.id) == req.headers.apikey) {
+    if (keyMap.has(req.body.id) && keyMap.get(req.body.id) == req.header('X-API-Key')) {
         next();
     } else {
         res.status(401).send('Unauthorized');
