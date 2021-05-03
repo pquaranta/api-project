@@ -2,7 +2,7 @@
 const { v4: uuidv4 } = require('uuid');
 const database = new Map();
 // Simulate some latency with the db
-const databaseLatency = process.env.IO_LATENCY || 10;
+const databaseLatency = process.env.NETWORK_LATENCY || 10;
 
 // Create and return a scanner
 const createScanner = async function() {
@@ -13,7 +13,6 @@ const createScanner = async function() {
             const id = uuidv4();
             // TODO: Have a better method of generating API keys
             const scanner = {
-                apiKey: `scanner-${id}-api-key`,
                 id: id,
                 creationTimestamp: Date.now()
             };

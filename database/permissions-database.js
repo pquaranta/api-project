@@ -2,7 +2,7 @@
 const { v4: uuidv4 } = require('uuid');
 const database = new Map();
 // Simulate some latency with the db
-const databaseLatency = process.env.IO_LATENCY || 10;
+const databaseLatency = process.env.NETWORK_LATENCY || 10;
 
 const createRule = async function(json) {
     return new Promise((res) => {

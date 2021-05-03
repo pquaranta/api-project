@@ -1,4 +1,5 @@
 const events = require('../middleware/events');
+const auth = require('../middleware/scanner-auth');
 
 // Fake messaging queue
 const queue = require('../streams/message-queue');
@@ -9,7 +10,7 @@ const ruleDb = require('../database/permissions-database');
 
 module.exports = function(app) {
     // Endpoint for submitting an event
-    app.post('/event', events.validateEvent, async (req, res) => {
+    app.post('/event', auth.validateApiKey, events.validateEvent, async (req, res) => {
         console.log(`Event received: ${JSON.stringify(req.body)}`);
 
         // Immediately upon receiving the event, we should block until we 
