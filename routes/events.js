@@ -22,6 +22,8 @@ module.exports = function(app) {
                 written = true;
             } catch (e) {
                 console.warn(e);
+                // Wait before trying again
+                await new Promise(resolve => setTimeout(resolve, process.env.MESSAGE_RETRY_MS || 500));
             }
         }
         
